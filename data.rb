@@ -9,12 +9,18 @@ class Data
   ERR_SYM_ARGS  = "all args must be Symbols"
   ERR_NAMED_ARG = "missing named arg"
   
-  def self.define(*args)
+  def self.define(*args, immutable: true)
     arg_err(ERR_ARGS_LEN) unless args.length > 0
     arg_err(ERR_SYM_ARGS) unless args.all? { |arg| arg.is_a? Symbol }
     
     Class.new do
-      args.each { |arg| attr_reader arg.to_sym }
+      args.each do |arg|
+        if immutable
+          attr_reader arg.to_sym
+        else
+          attr_accessor arg.to_sym
+        end
+      end
       
       define_method :initialize do |*values|
         case values.length
